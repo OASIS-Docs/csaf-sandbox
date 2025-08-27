@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+metadata_file="${repo_root}/.file-metadata"
+
+print_mtime_and_path() {
+  # Prefer BSD stat if available with -f
+  if /usr/bin/stat -f "%m %N" -- / >/dev/null 2>&1; then
+    /usr/bin/stat -f "%m %N" -- "$1"
+  elif stat --version >/dev/null 2>&1; then
+    stat -c "%Y %n" -- "$1"
+  else
+    # Fallback via Python
+    python3 - "$1" <<'PY'
+import os,sys
+p=sys.argv[1]
+st=os.stat(p)
+print(f"{int(st.st_mtime)} {p}")
+PY
+  fi
+}
+
+: > "${metadata_file}"
+git ls-files -z | while IFS= read -r -d '' f; do
+  print_mtime_and_path "$f" >> "${metadata_file}"
+done
+
+git add "${metadata_file}"

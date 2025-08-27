@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Block pushes unless the caller explicitly allows them.
+if [ "${ALLOW_PUSH:-0}" != "1" ]; then
+  echo "🛑 pre-push: blocked (export ALLOW_PUSH=1 to allow)" >&2
+  exit 1
+fi
+exit 0

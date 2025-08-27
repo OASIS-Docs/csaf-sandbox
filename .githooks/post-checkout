@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+"$(git rev-parse --show-toplevel)/.githooks/restore_metadata.sh"
